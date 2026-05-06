@@ -4,6 +4,7 @@
 
 const ECID_ORG_ID = 'B504732B5D3B2A790A495ECF@AdobeOrg';
 const LS_KEY = 'chronicle.demo.reader';
+const SS_SYNCED = 'chronicle.ids.synced'; // sessionStorage flag: IDs confirmed in AMCV this session
 const HOME_CATS = ['tech', 'world', 'business', 'science'];
 
 const READERS = [
@@ -338,12 +339,18 @@ function initReaderPicker() {
 
   const savedId = localStorage.getItem(LS_KEY);
 
-  // Restore customer ID on page load (AMCV cookie already has it, this reinforces)
   if (savedId) {
     const authState = window.Visitor ? window.Visitor.AuthState.AUTHENTICATED : 1;
-    whenVisitorReady(savedId, authState, () => {
-      // No reload needed — AMCV cookie already carried the ID into this page load
-    });
+    if (!sessionStorage.getItem(SS_SYNCED)) {
+      // First load this tab session with a saved reader. AMCV may not have the ID yet
+      // (e.g. fresh incognito tab). Set IDs then reload so the next page load request
+      // carries customerIds in the AMCV cookie before at.js fires.
+      sessionStorage.setItem(SS_SYNCED, '1');
+      whenVisitorReady(savedId, authState, () => location.reload());
+    } else {
+      // Already reloaded once this session — just reinforce the IDs (no reload)
+      whenVisitorReady(savedId, authState, () => {});
+    }
   }
 
   function buildUI() {
@@ -375,8 +382,8 @@ function initReaderPicker() {
         const reader = READERS.find(r => r.id === btn.dataset.readerId);
         if (!reader) return;
         localStorage.setItem(LS_KEY, reader.id);
+        sessionStorage.setItem(SS_SYNCED, '1'); // mark synced so restore path skips extra reload
         const authState = window.Visitor ? window.Visitor.AuthState.AUTHENTICATED : 1;
-        // Set customer ID then reload — next page load request includes it via AMCV cookie
         whenVisitorReady(reader.id, authState, () => location.reload());
       });
     });
@@ -385,6 +392,7 @@ function initReaderPicker() {
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => {
         localStorage.removeItem(LS_KEY);
+        sessionStorage.removeItem(SS_SYNCED);
         const authState = window.Visitor ? window.Visitor.AuthState.LOGGED_OUT : 2;
         whenVisitorReady('', authState, () => location.reload());
       });

@@ -6,12 +6,12 @@
   <title>Category — Chronicle</title>
 
   <script>
-    ;(function(g,b,d,f){
-      var s=b.createElement(d),t=b.getElementsByTagName(d)[0];
-      s.id=f;s.innerHTML='body{opacity:0!important}';
-      t.parentNode.insertBefore(s,t);
+    ;(function(g,b,f){
+      var s=b.createElement('style');
+      s.id=f;s.textContent='body{opacity:0!important}';
+      b.head.appendChild(s);
       setTimeout(function(){var n=b.getElementById(f);if(n)n.parentNode.removeChild(n);},g);
-    })(3000,document,'style','at-body-style');
+    })(3000,document,'at-body-style');
   </script>
 
   <script>
@@ -19,7 +19,10 @@
     window.targetPageParams = function() {
       var d = window.chronicleData || {};
       var p = { "at_property": "c8d5014f-50ac-ca33-cd18-97e363984aaf" };
-      if (d.page) { p["page.type"] = d.page.type; p["page.category"] = d.page.category || ""; }
+      if (d.page) {
+        p["page.type"] = d.page.type;
+        if (d.page.category) p["page.category"] = d.page.category;
+      }
       return p;
     };
   </script>
