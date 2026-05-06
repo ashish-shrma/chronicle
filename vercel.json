@@ -1,5 +1,11 @@
 {
-  "framework": "nextjs",
-  "buildCommand": "next build",
-  "installCommand": "npm ci"
+  "outputDirectory": "public",
+  "buildCommand": null,
+  "installCommand": null,
+  "framework": null,
+  "rewrites": [
+    { "source": "/article/:id", "destination": "/article.html" },
+    { "source": "/category/:slug", "destination": "/category.html" },
+    { "source": "/about", "destination": "/about.html" }
+  ]
 }

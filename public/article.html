@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Article — Chronicle</title>
+
+  <script>
+    ;(function(g,b,d,f){
+      var s=b.createElement(d),t=b.getElementsByTagName(d)[0];
+      s.id=f;s.innerHTML='body{opacity:0!important}';
+      t.parentNode.insertBefore(s,t);
+      setTimeout(function(){var n=b.getElementById(f);if(n)n.parentNode.removeChild(n);},g);
+    })(3000,document,'style','at-body-style');
+  </script>
+
+  <script>
+    window.chronicleData = {};
+    window.targetPageParams = function() {
+      var d = window.chronicleData || {};
+      var p = { "at_property": "c8d5014f-50ac-ca33-cd18-97e363984aaf" };
+      if (d.page) { p["page.type"] = d.page.type; p["page.category"] = d.page.category || ""; }
+      if (d.article) {
+        p["entity.id"]        = d.article.id;
+        p["entity.categoryId"]= d.article.category || "";
+        p["entity.name"]      = d.article.title || "";
+        p["article.id"]       = d.article.id;
+        p["article.category"] = d.article.category || "";
+        p["article.source"]   = d.article.source || "";
+      }
+      return p;
+    };
+  </script>
+
+  <!-- Extract article ID from URL synchronously so entity.id is in the page load request -->
+  <script>
+    (function() {
+      var id = location.pathname.split('/').filter(Boolean).pop() || '';
+      window.chronicleData.page    = { type: "article", category: null, articleId: id };
+      window.chronicleData.article = { id: id, title: '', category: '', source: '',
+                                        publishedAt: '', readTimeMinutes: 0, tags: [] };
+    })();
+  </script>
+
+  <script src="https://assets.adobedtm.com/6a203c8a0ff8/5671bcd53c9c/launch-88ba9665d70d-development.min.js" async></script>
+
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body data-page="article">
+
+  <div class="weather-bar">
+    <span>Weather and air quality for your region appear here.</span>
+    <span>Personalized by location · Adobe Target XT</span>
+  </div>
+
+  <header class="site-header">
+    <div class="container inner">
+      <a href="/" class="site-logo">Chronicle</a>
+      <nav class="site-nav" id="site-nav"></nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div id="article-mount" class="target-zone" data-zone="article">
+        <p class="loading">Loading…</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      Chronicle is a demo aggregator. Articles link back to their original publishers.
+    </div>
+  </footer>
+
+  <div id="reader-picker-mount"></div>
+
+  <script src="/js/chronicle.js"></script>
+</body>
+</html>

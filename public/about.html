@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Chronicle</title>
+
+  <script>
+    ;(function(g,b,d,f){
+      var s=b.createElement(d),t=b.getElementsByTagName(d)[0];
+      s.id=f;s.innerHTML='body{opacity:0!important}';
+      t.parentNode.insertBefore(s,t);
+      setTimeout(function(){var n=b.getElementById(f);if(n)n.parentNode.removeChild(n);},g);
+    })(3000,document,'style','at-body-style');
+  </script>
+
+  <script>
+    window.chronicleData = {};
+    window.targetPageParams = function() {
+      var d = window.chronicleData || {};
+      var p = { "at_property": "c8d5014f-50ac-ca33-cd18-97e363984aaf" };
+      if (d.page) { p["page.type"] = d.page.type; p["page.category"] = d.page.category || ""; }
+      return p;
+    };
+  </script>
+
+  <script>
+    window.chronicleData.page = { type: "home", category: null, articleId: null };
+  </script>
+
+  <script src="https://assets.adobedtm.com/6a203c8a0ff8/5671bcd53c9c/launch-88ba9665d70d-development.min.js" async></script>
+
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body data-page="about">
+
+  <div class="weather-bar">
+    <span>Weather and air quality for your region appear here.</span>
+    <span>Personalized by location · Adobe Target XT</span>
+  </div>
+
+  <header class="site-header">
+    <div class="container inner">
+      <a href="/" class="site-logo">Chronicle</a>
+      <nav class="site-nav" id="site-nav"></nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="about-wrap">
+        <h1>About Chronicle</h1>
+        <p>Chronicle is a demo news aggregator built to showcase Adobe Target personalization,
+           Adobe Analytics with A4T reporting, and Customer Attributes for authenticated reader scenarios.</p>
+        <p>Articles are aggregated every six hours from BBC, TechCrunch, The Verge, and Hacker News.
+           Full text links back to the original publisher — Chronicle does not claim ownership of any content.</p>
+        <p>The Reader Picker (bottom-right) simulates an authenticated session by calling
+           <code>Visitor.setCustomerIDs</code> with a fake <code>crm_id</code>. This is a demo tool only.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      Chronicle is a demo aggregator. Articles link back to their original publishers.
+    </div>
+  </footer>
+
+  <div id="reader-picker-mount"></div>
+
+  <script src="/js/chronicle.js"></script>
+</body>
+</html>

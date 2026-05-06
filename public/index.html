@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chronicle — Personalized News</title>
+
+  <!-- Adobe pre-hiding: keeps body hidden until Target responds (max 3s) -->
+  <script>
+    ;(function(g,b,d,f){
+      var s=b.createElement(d),t=b.getElementsByTagName(d)[0];
+      s.id=f;s.innerHTML='body{opacity:0!important}';
+      t.parentNode.insertBefore(s,t);
+      setTimeout(function(){var n=b.getElementById(f);if(n)n.parentNode.removeChild(n);},g);
+    })(3000,document,'style','at-body-style');
+  </script>
+
+  <!-- Data layer init + targetPageParams — must be before Launch -->
+  <script>
+    window.chronicleData = {};
+    window.targetPageParams = function() {
+      var d = window.chronicleData || {};
+      var p = { "at_property": "c8d5014f-50ac-ca33-cd18-97e363984aaf" };
+      if (d.page) { p["page.type"] = d.page.type; p["page.category"] = d.page.category || ""; }
+      if (d.article) {
+        p["entity.id"]       = d.article.id;
+        p["entity.categoryId"] = d.article.category || "";
+        p["entity.name"]     = d.article.title || "";
+        p["article.id"]      = d.article.id;
+        p["article.category"]= d.article.category || "";
+        p["article.source"]  = d.article.source || "";
+      }
+      return p;
+    };
+  </script>
+
+  <!-- Page-specific data layer (synchronous, before Launch fires) -->
+  <script>
+    window.chronicleData.page = { type: "home", category: null, articleId: null };
+  </script>
+
+  <!-- Adobe Launch (Target v2 + Analytics + ECID) -->
+  <script src="https://assets.adobedtm.com/6a203c8a0ff8/5671bcd53c9c/launch-88ba9665d70d-development.min.js" async></script>
+
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body data-page="home">
+
+  <div class="weather-bar">
+    <span>Weather and air quality for your region appear here.</span>
+    <span>Personalized by location · Adobe Target XT</span>
+  </div>
+
+  <header class="site-header">
+    <div class="container inner">
+      <a href="/" class="site-logo">Chronicle</a>
+      <nav class="site-nav" id="site-nav"><!-- populated by chronicle.js --></nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div id="homepage-layout" class="target-zone" data-zone="layout">
+        <p class="loading">Loading…</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      Chronicle is a demo aggregator. Articles link back to their original publishers.
+    </div>
+  </footer>
+
+  <div id="reader-picker-mount"></div>
+
+  <script src="/js/chronicle.js"></script>
+</body>
+</html>
