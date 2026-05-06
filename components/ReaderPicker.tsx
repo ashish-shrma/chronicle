@@ -41,16 +41,26 @@ function fireTriggerView(forceFresh = false) {
 }
 
 // Visitor API loads as part of Launch (afterInteractive). Poll until ready, then apply.
-function whenVisitorReady(id: string, authState: number, onReady: () => void) {
+// Returns a cancel function so React StrictMode's cleanup can stop the loop.
+function whenVisitorReady(id: string, authState: number, onReady: () => void): () => void {
   let attempts = 0;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let cancelled = false;
+
   function attempt() {
+    if (cancelled) return;
     if (setCustomerId(id, authState)) {
-      onReady();
+      if (!cancelled) onReady();
     } else if (attempts++ < 50) {
-      setTimeout(attempt, 100);
+      timer = setTimeout(attempt, 100);
     }
   }
   attempt();
+
+  return () => {
+    cancelled = true;
+    if (timer !== null) clearTimeout(timer);
+  };
 }
 
 export default function ReaderPicker() {
@@ -67,15 +77,13 @@ export default function ReaderPicker() {
     const saved = localStorage.getItem(LS_KEY);
     if (saved) {
       setCurrentReader(saved);
-      // Set customer ID first, then fire the single triggerView for this page load.
-      // page:true forces a fresh delivery request (not the cache built without customer IDs).
-      whenVisitorReady(
+      const cancel = whenVisitorReady(
         saved,
         window.Visitor?.AuthState.AUTHENTICATED ?? 1,
         () => fireTriggerView(true)
       );
+      return cancel; // StrictMode cleanup cancels the poll on the first (discarded) run
     } else {
-      // No saved reader — still need to fire triggerView once for Target to deliver experiences
       fireTriggerView(false);
     }
   }, []);
