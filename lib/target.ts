@@ -27,11 +27,11 @@ export function setPageContext(page: PageContext, article?: ArticleContext) {
   }
 }
 
-export function triggerView(viewName: string) {
+export function triggerView(viewName: string, options?: { page?: boolean }) {
   if (typeof window === "undefined") return;
   if (window.adobe?.target?.triggerView) {
     try {
-      window.adobe.target.triggerView(viewName);
+      window.adobe.target.triggerView(viewName, options);
     } catch (err) {
       console.warn("[target] triggerView failed", err);
     }

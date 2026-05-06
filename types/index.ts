@@ -64,7 +64,7 @@ declare global {
     };
     adobe?: {
       target?: {
-        triggerView: (viewName: string, options?: { page?: boolean }) => void;
+        triggerView: (viewName: string, options?: { page?: boolean; [key: string]: unknown }) => void;
       };
     };
     _satellite?: {

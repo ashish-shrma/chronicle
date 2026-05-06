@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getAllArticles, getArticleById } from "../../../lib/articles";
 import RecommendationsRail from "../../../components/RecommendationsRail";
 import PageContext from "../../../components/PageContext";
+import TriggerView from "../../../components/TriggerView";
 import ScrollDepthTracker from "../../../components/ScrollDepthTracker";
 
 export function generateStaticParams() {
@@ -31,6 +32,7 @@ export default function ArticlePage({ params }: { params: { id: string } }) {
           tags: article.tags
         }}
       />
+      <TriggerView viewName={`article-${article.id}`} />
       <ScrollDepthTracker articleId={article.id} />
 
       <article className="max-w-3xl mx-auto">

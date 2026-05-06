@@ -6,6 +6,7 @@ import {
 } from "../../../lib/articles";
 import ArticleGrid from "../../../components/ArticleGrid";
 import PageContext from "../../../components/PageContext";
+import TriggerView from "../../../components/TriggerView";
 
 export function generateStaticParams() {
   return getCategories().map((c) => ({ slug: c.slug }));
@@ -28,6 +29,7 @@ export default function CategoryPage({
         category={params.slug}
         viewName={`category-${params.slug}`}
       />
+      <TriggerView viewName={`category-${params.slug}`} />
       <header className="mb-8 border-b border-[var(--line)] pb-4">
         <div className="text-xs uppercase tracking-widest text-[var(--accent)]">
           Category

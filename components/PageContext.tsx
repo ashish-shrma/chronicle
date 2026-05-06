@@ -1,5 +1,3 @@
-import TriggerView from "./TriggerView";
-
 type ArticleContext = {
   id: string;
   title: string;
@@ -18,8 +16,9 @@ type Props = {
   viewName: string;
 };
 
-// Server component — renders an inline <script> that runs synchronously,
-// guaranteeing chronicleData.page is populated before Launch fires.
+// Server component — inline script sets the data layer synchronously so it's
+// available when Launch reads targetPageParams on Library Loaded.
+// triggerView is fired by ReaderPicker (homepage) or TriggerView (other pages).
 export default function PageContext({
   type,
   category = null,
@@ -33,15 +32,11 @@ export default function PageContext({
   const inline = [
     `window.chronicleData = window.chronicleData || {};`,
     `window.chronicleData.page = ${pageJson};`,
-    articleJson ? `window.chronicleData.article = ${articleJson};` : `delete window.chronicleData.article;`
+    `window.chronicleData.viewName = ${JSON.stringify(viewName)};`,
+    articleJson
+      ? `window.chronicleData.article = ${articleJson};`
+      : `delete window.chronicleData.article;`
   ].join(" ");
 
-  return (
-    <>
-      {/* Sets data layer synchronously — before any script (including Launch) reads it */}
-      <script dangerouslySetInnerHTML={{ __html: inline }} />
-      {/* triggerView must be client-side — fires after Target loads */}
-      <TriggerView viewName={viewName} />
-    </>
-  );
+  return <script dangerouslySetInnerHTML={{ __html: inline }} />;
 }
