@@ -24,6 +24,35 @@ export default function ReaderPicker() {
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
+  if (typeof window === "undefined") return;
+
+  const params = new URLSearchParams(window.location.search);
+  const showAlways = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+  setEnabled(showAlways || params.get("demo") === "true");
+
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    setCurrentReader(saved);
+
+    // re-stitch Customer ID after reload
+    const orgId = process.env.NEXT_PUBLIC_ECID_ORG_ID || "";
+    if (window.Visitor && orgId) {
+      try {
+        const visitor = window.Visitor.getInstance(orgId);
+        visitor.setCustomerIDs({
+          crm_id: {
+            id: saved,
+            authState: window.Visitor.AuthState.AUTHENTICATED
+          }
+        });
+      } catch (e) {
+        console.warn("[reader-picker] restore setCustomerIDs failed", e);
+      }
+    }
+  }
+}, []);
+
+  useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const showAlways = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
@@ -37,6 +66,7 @@ export default function ReaderPicker() {
     if (typeof window !== "undefined" && window.Visitor && orgId) {
       try {
         const visitor = window.Visitor.getInstance(orgId);
+        console.log("inside visitor")
         visitor.setCustomerIDs({
           crm_id: {
             id: reader.id,
