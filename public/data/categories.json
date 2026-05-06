@@ -1,0 +1,40 @@
+{
+  "categories": [
+    {
+      "slug": "tech",
+      "name": "Tech",
+      "description": "Software, hardware, AI, and the industry that builds them.",
+      "articleCount": 63
+    },
+    {
+      "slug": "world",
+      "name": "World",
+      "description": "International news and politics.",
+      "articleCount": 26
+    },
+    {
+      "slug": "business",
+      "name": "Business",
+      "description": "Markets, companies, and the global economy.",
+      "articleCount": 27
+    },
+    {
+      "slug": "science",
+      "name": "Science",
+      "description": "Research, discovery, and the natural world.",
+      "articleCount": 0
+    },
+    {
+      "slug": "culture",
+      "name": "Culture",
+      "description": "Arts, media, and society.",
+      "articleCount": 0
+    },
+    {
+      "slug": "sports",
+      "name": "Sports",
+      "description": "Games, athletes, and competition.",
+      "articleCount": 0
+    }
+  ]
+}
