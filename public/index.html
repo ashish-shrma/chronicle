@@ -34,8 +34,16 @@
     window.chronicleData.page = { type: "home", category: null, articleId: null };
   </script>
 
+  <!-- Early capture: if Launch (async) delivers before chronicle.js (sync) loads,
+       the chronicle:experience event fires with no listener. Store it here. -->
+  <script>
+    document.addEventListener('chronicle:experience', function(e) {
+      if (e && e.detail) window.chronicleData._offer = e.detail;
+    });
+  </script>
+
   <!-- Adobe Launch (Target v2 + Analytics + ECID) -->
-<script src="https://assets.adobedtm.com/6a203c8a0ff8/5671bcd53c9c/launch-88ba9665d70d-development.min.js" async></script>
+  <script src="https://assets.adobedtm.com/6a203c8a0ff8/5671bcd53c9c/launch-88ba9665d70d-development.min.js" async></script>
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body data-page="home">

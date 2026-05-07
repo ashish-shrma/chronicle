@@ -5,6 +5,8 @@
 const ECID_ORG_ID = 'B504732B5D3B2A790A495ECF@AdobeOrg';
 const LS_KEY = 'chronicle.demo.reader';
 const SS_SYNCED = 'chronicle.ids.synced'; // sessionStorage flag: IDs confirmed in AMCV this session
+const AUTHENTICATED = 1;
+const LOGGED_OUT = 2;
 const HOME_CATS = ['tech', 'world', 'business', 'science'];
 
 const READERS = [
@@ -340,16 +342,15 @@ function initReaderPicker() {
   const savedId = localStorage.getItem(LS_KEY);
 
   if (savedId) {
-    const authState = window.Visitor ? window.Visitor.AuthState.AUTHENTICATED : 1;
     if (!sessionStorage.getItem(SS_SYNCED)) {
       // First load this tab session with a saved reader. AMCV may not have the ID yet
       // (e.g. fresh incognito tab). Set IDs then reload so the next page load request
       // carries customerIds in the AMCV cookie before at.js fires.
       sessionStorage.setItem(SS_SYNCED, '1');
-      whenVisitorReady(savedId, authState, () => location.reload());
+      whenVisitorReady(savedId, AUTHENTICATED, () => location.reload());
     } else {
       // Already reloaded once this session — just reinforce the IDs (no reload)
-      whenVisitorReady(savedId, authState, () => {});
+      whenVisitorReady(savedId, AUTHENTICATED, () => {});
     }
   }
 
@@ -383,8 +384,7 @@ function initReaderPicker() {
         if (!reader) return;
         localStorage.setItem(LS_KEY, reader.id);
         sessionStorage.setItem(SS_SYNCED, '1'); // mark synced so restore path skips extra reload
-        const authState = window.Visitor ? window.Visitor.AuthState.AUTHENTICATED : 1;
-        whenVisitorReady(reader.id, authState, () => location.reload());
+        whenVisitorReady(reader.id, AUTHENTICATED, () => location.reload());
       });
     });
 
@@ -393,8 +393,7 @@ function initReaderPicker() {
       logoutBtn.addEventListener('click', () => {
         localStorage.removeItem(LS_KEY);
         sessionStorage.removeItem(SS_SYNCED);
-        const authState = window.Visitor ? window.Visitor.AuthState.LOGGED_OUT : 2;
-        whenVisitorReady('', authState, () => location.reload());
+        whenVisitorReady('', LOGGED_OUT, () => location.reload());
       });
     }
   }
@@ -404,8 +403,11 @@ function initReaderPicker() {
 
 // ─── Experience event listener ────────────────────────────────────────────────
 
-// Target's XT custom code dispatches this event. Since this is an MPA,
-// Target fires on page load — the custom code runs as soon as at.js delivers.
+// Target's XT custom code dispatches this event. Since chronicle.js is a sync
+// script at the bottom of <body>, if the async Launch bundle loads from cache
+// before chronicle.js is fetched, at.js can deliver and dispatch this event
+// before this listener exists. The inline capture script in <head> stores
+// window.chronicleData._offer for that case; we read it in init below.
 document.addEventListener('chronicle:experience', e => {
   const { experience, topics } = e.detail || {};
   applyExperience(experience || 'default', topics || []);
@@ -424,6 +426,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (el) el.innerHTML = '<p class="loading">Failed to load articles. Please try refreshing.</p>';
     }
     return;
+  }
+
+  // If the chronicle:experience event fired before this script loaded (Launch cached,
+  // at.js responded fast), apply it now before the first render.
+  const prefired = window.chronicleData && window.chronicleData._offer;
+  if (prefired && _experience === 'default') {
+    _experience = prefired.experience || 'default';
+    _topics = prefired.topics || [];
   }
 
   const page = document.body.dataset.page;
