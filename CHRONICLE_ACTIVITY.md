@@ -45,21 +45,21 @@ In the VEC, for each experience choose **Action → Custom Code** on `.target-zo
 
 ```js
 (function () {
-  // profile.topics_followed is sent by the page from localStorage — read it back via
-  // the profile Velocity token so Target can seed the hero + category order.
-  var topics = '${profile.topics_followed}';
-  var topicsArr = topics && topics.indexOf('${') === -1
-    ? topics.split(',').map(function(t){ return t.trim(); })
-    : [];
-
+  // No Velocity tokens — topics come from chronicleData.reader.topics
+  // which chronicle.js restored from localStorage before this code runs.
   window.chronicleData = window.chronicleData || {};
   window.chronicleData.experience = 'premium';
 
   document.dispatchEvent(new CustomEvent('chronicle:experience', {
-    detail: { experience: 'premium', topics: topicsArr }
+    detail: { experience: 'premium', topics: [] }
   }));
 })();
 ```
+
+> **Note:** `chronicle.js` reads `chronicleData.reader.topics` automatically when topics is empty,
+> so the hero and category order still personalise correctly for the selected reader.
+> Velocity tokens (`${crs.*}` or `${profile.*}`) are intentionally omitted — unresolved `crs.*`
+> tokens cause Target to return a 500 when Customer Attributes is not configured.
 
 ### Experience 2 — Free reader
 

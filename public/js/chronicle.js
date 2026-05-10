@@ -171,12 +171,16 @@ function renderHomepage() {
 
 function applyExperience(experience, topics) {
   _experience = experience;
+
+  // If Target custom code didn't supply topics (no Velocity token), read them
+  // from the reader profile that was restored from localStorage before Launch fired.
+  if (experience === 'premium' && (!topics || !topics.length)) {
+    const raw = window.chronicleData && window.chronicleData.reader && window.chronicleData.reader.topics;
+    if (raw) topics = raw.split(',').map(t => t.trim()).filter(Boolean);
+  }
   _topics = topics || [];
 
-  // keep data layer in sync for Analytics
-  if (window.chronicleData) {
-    window.chronicleData.experience = experience;
-  }
+  if (window.chronicleData) window.chronicleData.experience = experience;
 
   renderHomepage();
 }
