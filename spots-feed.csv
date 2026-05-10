@@ -1,0 +1,26 @@
+entity.id,entity.name,entity.categoryId,entity.message,entity.thumbnailUrl,entity.pageUrl,entity.value,entity.inventory,entity.brand
+spot-001,Blue Tokai Coffee Roasters,north-india,Single-origin pour-overs and a relaxed warehouse vibe in Saket,https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400,https://bluetokaicoffee.com,92,1,Cafe
+spot-002,Indian Accent,north-india,Inventive modern Indian tasting menus near Lodhi Gardens,https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400,https://indianaccent.com,98,1,Restaurant
+spot-003,Hauz Khas Village,north-india,Lakeside ruins ringed by cafes bars and design boutiques,https://images.unsplash.com/photo-1587474260584-136574528ed5?w=400,https://example.com/hauz-khas,85,1,Neighborhood
+spot-004,Khan Market,north-india,Bookstores delis and old-Delhi favourites in one stretch,https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400,https://example.com/khan-market,80,1,Market
+spot-005,Lodhi Art District,north-india,Indias first open-air public art district across 50+ murals,https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=400,https://example.com/lodhi-art,78,1,Attraction
+spot-006,Third Wave Coffee Indiranagar,south-india,Reliable flat whites and laptop-friendly seating on 100ft Road,https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400,https://thirdwavecoffee.in,90,1,Cafe
+spot-007,Toit Brewpub,south-india,Craft brews wood-fired pizzas and the Bangalore beer benchmark,https://images.unsplash.com/photo-1505075106905-fb052892c116?w=400,https://toit.in,95,1,Restaurant
+spot-008,Cubbon Park,south-india,300 acres of green in the middle of the city closed to cars on Sundays,https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400,https://example.com/cubbon-park,82,1,Park
+spot-009,Bangalore Palace,south-india,Tudor-style palace and grounds modeled after Windsor Castle,https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=400,https://example.com/bangalore-palace,75,1,Attraction
+spot-010,VV Puram Food Street,south-india,Evening street-food strip famous for dosas chaats and sweets,https://images.unsplash.com/photo-1567337710282-00832b415979?w=400,https://example.com/vv-puram,88,1,Market
+spot-011,Marine Drive,west-india,Curve of the Queens Necklace stretching from Nariman Point to Malabar Hill,https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=400,https://example.com/marine-drive,93,1,Attraction
+spot-012,Bandra Worli Sea Link,west-india,Cable-stayed bridge with the citys best skyline views,https://images.unsplash.com/photo-1566552881560-0be862a7c445?w=400,https://example.com/sea-link,86,1,Attraction
+spot-013,Bademiya Colaba,west-india,Late-night seekh kebabs and rolls behind the Taj since 1946,https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400,https://example.com/bademiya,89,1,Restaurant
+spot-014,Kala Ghoda,west-india,Galleries cafes and the citys art-and-design quarter,https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=400,https://example.com/kala-ghoda,84,1,Neighborhood
+spot-015,Elephanta Caves,west-india,UNESCO rock-cut Shiva temples a ferry ride from Gateway of India,https://images.unsplash.com/photo-1564507592333-c60657eea523?w=400,https://example.com/elephanta,81,1,Attraction
+spot-016,Cafe Reggio,us-east,Greenwich Village classic claiming the first cappuccino in America,https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400,https://cafereggio.com,87,1,Cafe
+spot-017,Katzs Delicatessen,us-east,Pastrami on rye since 1888 on the Lower East Side,https://images.unsplash.com/photo-1521305916504-4a1121188589?w=400,https://katzsdelicatessen.com,94,1,Restaurant
+spot-018,The High Line,us-east,Elevated park built on a former freight rail line above the West Side,https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?w=400,https://thehighline.org,91,1,Park
+spot-019,Brooklyn Bridge Park,us-east,Six piers of waterfront with skyline views and ferry access,https://images.unsplash.com/photo-1543716091-a840c05249ec?w=400,https://brooklynbridgepark.org,83,1,Park
+spot-020,The Met,us-east,Two million works across 5000 years on the edge of Central Park,https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=400,https://metmuseum.org,96,1,Attraction
+spot-021,Tartine Bakery,us-west,Mission District morning buns and country bread that defined a generation,https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=400,https://tartinebakery.com,90,1,Cafe
+spot-022,Swan Oyster Depot,us-west,Polk Street counter-only seafood institution since 1912,https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400,https://example.com/swan-oyster,92,1,Restaurant
+spot-023,Lands End,us-west,Coastal trail with shipwreck views and the Sutro Bath ruins,https://images.unsplash.com/photo-1502635385003-ee1e6a1a742d?w=400,https://example.com/lands-end,85,1,Attraction
+spot-024,Ferry Building Marketplace,us-west,Embarcadero food hall with farmers market three days a week,https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400,https://ferrybuildingmarketplace.com,88,1,Market
+spot-025,Golden Gate Park Japanese Tea Garden,us-west,Oldest public Japanese garden in the US,https://images.unsplash.com/photo-1528164344705-47542687000d?w=400,https://example.com/japanese-tea-garden,79,1,Attraction
