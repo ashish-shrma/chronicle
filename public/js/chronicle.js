@@ -446,6 +446,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     _topics = prefired.topics || [];
   }
 
+  // Fallback: if Target hasn't delivered an experience yet but a reader is selected,
+  // apply experience from their saved tier. Target's chronicle:experience event will
+  // override this if/when it fires (CA sync, audience match, etc.).
+  if (_experience === 'default') {
+    const reader = window.chronicleData && window.chronicleData.reader;
+    if (reader && (reader.tier === 'premium' || reader.tier === 'free')) {
+      _experience = reader.tier;
+      if (reader.tier === 'premium' && reader.topics) {
+        _topics = reader.topics.split(',').map(t => t.trim()).filter(Boolean);
+      }
+    }
+  }
+
   const page = document.body.dataset.page;
   if (page === 'home')     renderHomepage();
   if (page === 'article')  renderArticle();
