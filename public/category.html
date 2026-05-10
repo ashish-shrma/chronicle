@@ -43,11 +43,33 @@
     (function() {
       var k = 'chronicle.demo.reader';
       var tier = localStorage.getItem(k + '.tier');
+      if (!tier) {
+        var id = localStorage.getItem(k);
+        var map = {
+          reader_001:{tier:'premium',topics:'tech,science',region:'IN'},
+          reader_002:{tier:'free',topics:'world,culture',region:'IN'},
+          reader_003:{tier:'premium',topics:'business,tech',region:'US'},
+          reader_004:{tier:'free',topics:'sports,world',region:'UK'},
+          reader_005:{tier:'premium',topics:'culture,science',region:'JP'},
+          reader_006:{tier:'free',topics:'world,business',region:'MX'},
+          reader_007:{tier:'premium',topics:'world,culture,science',region:'AE'},
+          reader_008:{tier:'free',topics:'tech',region:'SG'},
+          reader_009:{tier:'premium',topics:'culture,business',region:'UK'},
+          reader_010:{tier:'free',topics:'sports,tech',region:'IN'}
+        };
+        var r = id && map[id];
+        if (r) {
+          tier = r.tier;
+          localStorage.setItem(k+'.tier', r.tier);
+          localStorage.setItem(k+'.topics', r.topics);
+          localStorage.setItem(k+'.region', r.region);
+        }
+      }
       if (tier) {
         window.chronicleData.reader = {
           tier:   tier,
-          topics: localStorage.getItem(k + '.topics') || '',
-          region: localStorage.getItem(k + '.region') || ''
+          topics: localStorage.getItem(k+'.topics') || '',
+          region: localStorage.getItem(k+'.region') || ''
         };
       }
     })();
