@@ -23,6 +23,11 @@
         p["page.type"] = d.page.type;
         if (d.page.category) p["page.category"] = d.page.category;
       }
+      if (d.reader) {
+        p["profile.subscription_tier"] = d.reader.tier;
+        if (d.reader.topics) p["profile.topics_followed"] = d.reader.topics;
+        if (d.reader.region)  p["profile.region"]          = d.reader.region;
+      }
       return p;
     };
   </script>
@@ -31,6 +36,20 @@
     (function() {
       var slug = location.pathname.split('/').filter(Boolean).pop() || '';
       window.chronicleData.page = { type: "category", category: slug, articleId: null };
+    })();
+  </script>
+
+  <script>
+    (function() {
+      var k = 'chronicle.demo.reader';
+      var tier = localStorage.getItem(k + '.tier');
+      if (tier) {
+        window.chronicleData.reader = {
+          tier:   tier,
+          topics: localStorage.getItem(k + '.topics') || '',
+          region: localStorage.getItem(k + '.region') || ''
+        };
+      }
     })();
   </script>
 

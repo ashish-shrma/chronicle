@@ -23,11 +23,17 @@ Single Target activity that uses all three products:
 
 ## Audiences
 
-| Experience | Audience |
+| Experience | Audience rule |
 |---|---|
-| Premium reader | Customer Attribute: `crs.subscription_tier` **equals** `premium` |
-| Free reader | Customer Attribute: `crs.subscription_tier` **equals** `free` |
+| Premium reader | Profile Attribute: `subscription_tier` **equals** `premium` |
+| Free reader | Profile Attribute: `subscription_tier` **equals** `free` |
 | Default | All Visitors (fallback) |
+
+> **How it works:** The page sends `profile.subscription_tier` in `targetPageParams` on every load,
+> read synchronously from localStorage before the Launch bundle fires. Target evaluates it immediately —
+> no Customer Attributes upload or ID sync needed for the demo.
+> Once Customer Attributes are live (`crs.subscription_tier`), you can add an OR condition to each
+> audience so both mechanisms match.
 
 ---
 
@@ -39,10 +45,12 @@ In the VEC, for each experience choose **Action → Custom Code** on `.target-zo
 
 ```js
 (function () {
-  var topics = '${crs.topics_followed}';          // Velocity: resolves to e.g. "tech,science"
-  var topicsArr = topics && topics !== '$' + '{crs.topics_followed}'
+  // profile.topics_followed is sent by the page from localStorage — read it back via
+  // the profile Velocity token so Target can seed the hero + category order.
+  var topics = '${profile.topics_followed}';
+  var topicsArr = topics && topics.indexOf('${') === -1
     ? topics.split(',').map(function(t){ return t.trim(); })
-    : [];                                          // fallback if attribute not resolved
+    : [];
 
   window.chronicleData = window.chronicleData || {};
   window.chronicleData.experience = 'premium';

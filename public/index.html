@@ -20,22 +20,41 @@
     window.chronicleData = {};
     window.targetPageParams = function() {
       var d = window.chronicleData || {};
-      var p = {};
+      var p = { "at_property": "c8d5014f-50ac-ca33-cd18-97e363984aaf" };
       if (d.page) {
         p["page.type"] = d.page.type;
         if (d.page.category) p["page.category"] = d.page.category;
+      }
+      if (d.reader) {
+        p["profile.subscription_tier"] = d.reader.tier;
+        if (d.reader.topics) p["profile.topics_followed"] = d.reader.topics;
+        if (d.reader.region)  p["profile.region"]          = d.reader.region;
       }
       return p;
     };
   </script>
 
-  <!-- Page-specific data layer (synchronous, before Launch fires) -->
+  <!-- Page-specific data layer -->
   <script>
     window.chronicleData.page = { type: "home", category: null, articleId: null };
   </script>
 
-  <!-- Early capture: if Launch (async) delivers before chronicle.js (sync) loads,
-       the chronicle:experience event fires with no listener. Store it here. -->
+  <!-- Restore reader profile synchronously so profile params reach the page load request -->
+  <script>
+    (function() {
+      var k = 'chronicle.demo.reader';
+      var tier = localStorage.getItem(k + '.tier');
+      if (tier) {
+        window.chronicleData.reader = {
+          tier:   tier,
+          topics: localStorage.getItem(k + '.topics') || '',
+          region: localStorage.getItem(k + '.region') || ''
+        };
+      }
+    })();
+  </script>
+
+  <!-- Early capture: if Launch (async) fires chronicle:experience before chronicle.js loads -->
   <script>
     document.addEventListener('chronicle:experience', function(e) {
       if (e && e.detail) window.chronicleData._offer = e.detail;

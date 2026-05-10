@@ -383,7 +383,10 @@ function initReaderPicker() {
         const reader = READERS.find(r => r.id === btn.dataset.readerId);
         if (!reader) return;
         localStorage.setItem(LS_KEY, reader.id);
-        sessionStorage.setItem(SS_SYNCED, '1'); // mark synced so restore path skips extra reload
+        localStorage.setItem(LS_KEY + '.tier', reader.tier);
+        localStorage.setItem(LS_KEY + '.topics', reader.topics);
+        localStorage.setItem(LS_KEY + '.region', reader.region);
+        sessionStorage.setItem(SS_SYNCED, '1');
         whenVisitorReady(reader.id, AUTHENTICATED, () => location.reload());
       });
     });
@@ -392,6 +395,9 @@ function initReaderPicker() {
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => {
         localStorage.removeItem(LS_KEY);
+        localStorage.removeItem(LS_KEY + '.tier');
+        localStorage.removeItem(LS_KEY + '.topics');
+        localStorage.removeItem(LS_KEY + '.region');
         sessionStorage.removeItem(SS_SYNCED);
         whenVisitorReady('', LOGGED_OUT, () => location.reload());
       });
