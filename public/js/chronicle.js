@@ -558,4 +558,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (page === 'about')    renderAbout();
 
   initReaderPicker();
+
+  // Store article metadata to sessionStorage on card click so the next page's
+  // <head> script can populate entity params for Target before Launch fires.
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('a[href^="/article/"]');
+    if (!link) return;
+    const id = link.pathname.split('/').filter(Boolean).pop();
+    const article = _articles.find(a => a.id === id);
+    if (article) {
+      try {
+        sessionStorage.setItem('chronicle.article-meta', JSON.stringify({
+          id: article.id, category: article.category,
+          title: article.title, source: article.source
+        }));
+      } catch(e) {}
+    }
+  });
 });

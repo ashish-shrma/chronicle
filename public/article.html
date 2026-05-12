@@ -40,13 +40,18 @@
     };
   </script>
 
-  <!-- Extract article ID from URL synchronously so entity.id is in the page load request -->
+  <!-- Extract article ID + restore metadata stored on card click so entity params are in the page load request -->
   <script>
     (function() {
       var id = location.pathname.split('/').filter(Boolean).pop() || '';
-      window.chronicleData.page    = { type: "article", category: null, articleId: id };
-      window.chronicleData.article = { id: id, title: '', category: '', source: '',
-                                        publishedAt: '', readTimeMinutes: 0, tags: [] };
+      var meta = null;
+      try {
+        var raw = sessionStorage.getItem('chronicle.article-meta');
+        if (raw) { var m = JSON.parse(raw); if (m && m.id === id) meta = m; }
+      } catch(e) {}
+      window.chronicleData.page    = { type: "article", category: meta ? meta.category : null, articleId: id };
+      window.chronicleData.article = { id: id, title: meta ? meta.title : '', category: meta ? meta.category : '',
+                                        source: meta ? meta.source : '', publishedAt: '', readTimeMinutes: 0, tags: [] };
     })();
   </script>
 
