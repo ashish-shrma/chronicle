@@ -4,7 +4,7 @@
       "slug": "tech",
       "name": "Tech",
       "description": "Software, hardware, AI, and the industry that builds them.",
-      "articleCount": 65
+      "articleCount": 61
     },
     {
       "slug": "world",
@@ -16,7 +16,7 @@
       "slug": "business",
       "name": "Business",
       "description": "Markets, companies, and the global economy.",
-      "articleCount": 31
+      "articleCount": 33
     },
     {
       "slug": "science",
