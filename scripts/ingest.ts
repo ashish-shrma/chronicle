@@ -16,6 +16,7 @@ const PUBLIC_BASE_URL =
 const PROJECT_ROOT = path.resolve(__dirname, "..");
 const OUT_DIR = path.join(PROJECT_ROOT, "public", "data");
 const FAILURE_LOG = path.join(PROJECT_ROOT, "scripts", "domain_failures.txt");
+const MAX_ARTICLES = 1000;
 
 async function main() {
   console.log("[ingest] start");
@@ -119,12 +120,27 @@ async function main() {
     );
   }
 
-  const deduped = dedupe(articles).sort(
-    (a, b) =>
-      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  const freshDeduped = dedupe(articles);
+
+  // Merge with existing articles so old articles stay accessible for Target Recs
+  const existingFile = path.join(OUT_DIR, "articles.json");
+  let existing: Article[] = [];
+  try {
+    const raw = JSON.parse(fs.readFileSync(existingFile, "utf8"));
+    existing = Array.isArray(raw.articles) ? raw.articles : [];
+  } catch {
+    // first run or file missing — start fresh
+  }
+
+  const merged = dedupe([...freshDeduped, ...existing])
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    .slice(0, MAX_ARTICLES);
+
+  console.log(
+    `[ingest] fresh=${freshDeduped.length} existing=${existing.length} merged=${merged.length}`
   );
 
-  console.log(`[ingest] final article count: ${deduped.length}`);
+  const deduped = merged;
 
   writeArticlesJson(deduped, OUT_DIR);
   writeRecsCsv(deduped, OUT_DIR, PUBLIC_BASE_URL);

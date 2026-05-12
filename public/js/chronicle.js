@@ -104,6 +104,84 @@ function recsPlaceholderHtml(zone, title) {
 
 function adPlaceholderHtml() {
   return `<div class="ad-placeholder">Advertisement</div>`;
+
+// ─── Article recommendations (Target Recs mbox + category fallback) ───────────
+
+function loadRecs(article) {
+  const section = document.querySelector('.target-zone[data-zone="related"]');
+  if (!section) return;
+
+  const inner = section.querySelector('.recs-placeholder');
+  if (inner) inner.textContent = 'Loading recommendations…';
+
+  let done = false;
+
+  const fallbackTimer = setTimeout(function() {
+    if (!done) { done = true; renderFallbackRecs(section, article); }
+  }, 3000);
+
+  function tryGetOffers() {
+    if (!window.adobe || !window.adobe.target || !window.adobe.target.getOffers) return false;
+    window.adobe.target.getOffers({
+      request: {
+        execute: {
+          mboxes: [{ name: 'chronicle-recs', index: 0, parameters: {
+            'entity.id': article.id,
+            'entity.categoryId': article.category,
+            'entity.name': article.title
+          }}]
+        }
+      }
+    }).then(function(response) {
+      clearTimeout(fallbackTimer);
+      if (done) return;
+      done = true;
+      var mbox = response && response.execute && response.execute.mboxes && response.execute.mboxes[0];
+      var content = mbox && mbox.options && mbox.options[0] && mbox.options[0].content;
+      var ids = null;
+      if (typeof content === 'string') { try { ids = JSON.parse(content); } catch(e) {} }
+      else if (Array.isArray(content)) { ids = content; }
+
+      if (Array.isArray(ids) && ids.length) {
+        var recArticles = ids.map(function(item) {
+          var id = typeof item === 'string' ? item : (item && item.id);
+          return id ? _articles.find(function(a) { return a.id === id; }) : null;
+        }).filter(Boolean).slice(0, 4);
+        if (recArticles.length) {
+          renderRecsSection(section, recArticles, 'Recommended for you · Adobe Target');
+          return;
+        }
+      }
+      renderFallbackRecs(section, article);
+    }).catch(function() {
+      clearTimeout(fallbackTimer);
+      if (!done) { done = true; renderFallbackRecs(section, article); }
+    });
+    return true;
+  }
+
+  if (!tryGetOffers()) {
+    var attempts = 0;
+    var poll = setInterval(function() {
+      if (++attempts > 25 || done) { clearInterval(poll); return; }
+      if (tryGetOffers()) clearInterval(poll);
+    }, 100);
+  }
+}
+
+function renderFallbackRecs(section, article) {
+  var picks = _articles.filter(function(a) {
+    return a.id !== article.id && a.category === article.category;
+  }).slice(0, 4);
+  if (!picks.length) { section.style.display = 'none'; return; }
+  renderRecsSection(section, picks, 'More in ' + article.category);
+}
+
+function renderRecsSection(section, articles, title) {
+  section.innerHTML = `
+    <h2 class="section-title">${esc(title)}</h2>
+    ${gridHtml(articles, Math.min(articles.length, 4))}`;
+}
 }
 
 function experienceBadgeHtml(experience) {
@@ -238,6 +316,7 @@ function renderArticle() {
   renderNav();
   initScrollDepth(article.id);
   initReadFullTracking();
+  loadRecs(article);
 }
 
 // ─── Category page ────────────────────────────────────────────────────────────
@@ -339,6 +418,19 @@ function whenVisitorReady(id, authState, callback) {
   return function cancel() { cancelled = true; if (timer) clearTimeout(timer); };
 }
 
+// Wait for ECID to obtain its MID before reloading. ECID flushes any pending
+// setCustomerIDs writes to AMCV at the same moment it resolves the MID, so
+// the reloaded page's delivery request will carry customerIds.
+function reloadWhenAmcvReady() {
+  try {
+    window.Visitor.getInstance(ECID_ORG_ID).getMarketingCloudVisitorID(function() {
+      location.reload();
+    }, true);
+  } catch(e) {
+    location.reload();
+  }
+}
+
 function initReaderPicker() {
   const mount = document.getElementById('reader-picker-mount');
   if (!mount) return;
@@ -351,7 +443,7 @@ function initReaderPicker() {
       // (e.g. fresh incognito tab). Set IDs then reload so the next page load request
       // carries customerIds in the AMCV cookie before at.js fires.
       sessionStorage.setItem(SS_SYNCED, '1');
-      whenVisitorReady(savedId, AUTHENTICATED, () => location.reload());
+      whenVisitorReady(savedId, AUTHENTICATED, () => reloadWhenAmcvReady());
     } else {
       // Already reloaded once this session — just reinforce the IDs (no reload)
       whenVisitorReady(savedId, AUTHENTICATED, () => {});
@@ -391,7 +483,7 @@ function initReaderPicker() {
         localStorage.setItem(LS_KEY + '.topics', reader.topics);
         localStorage.setItem(LS_KEY + '.region', reader.region);
         sessionStorage.setItem(SS_SYNCED, '1');
-        whenVisitorReady(reader.id, AUTHENTICATED, () => location.reload());
+        whenVisitorReady(reader.id, AUTHENTICATED, () => reloadWhenAmcvReady());
       });
     });
 
@@ -403,7 +495,7 @@ function initReaderPicker() {
         localStorage.removeItem(LS_KEY + '.topics');
         localStorage.removeItem(LS_KEY + '.region');
         sessionStorage.removeItem(SS_SYNCED);
-        whenVisitorReady('', LOGGED_OUT, () => location.reload());
+        whenVisitorReady('', LOGGED_OUT, () => reloadWhenAmcvReady());
       });
     }
   }
