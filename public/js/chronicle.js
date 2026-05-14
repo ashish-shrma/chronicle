@@ -284,12 +284,6 @@ function applyExperience(experience, topics) {
 
   if (window.chronicleData) window.chronicleData.experience = experience;
 
-  const weatherBar = document.querySelector('.weather-bar');
-  if (weatherBar) {
-    weatherBar.style.display = experience === 'premium' ? '' : 'none';
-    if (experience === 'premium') initWeatherBar();
-  }
-
   renderHomepage();
 }
 
@@ -588,6 +582,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (page === 'about')    renderAbout();
 
   initReaderPicker();
+  initWeatherBar();
 
   // Store article metadata to sessionStorage on card click so the next page's
   // <head> script can populate entity params for Target before Launch fires.
