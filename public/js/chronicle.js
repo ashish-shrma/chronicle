@@ -104,6 +104,31 @@ function recsPlaceholderHtml(zone, title) {
 
 function adPlaceholderHtml() {
   return `<div class="ad-placeholder">Advertisement</div>`;
+}
+
+// ─── Weather bar ──────────────────────────────────────────────────────────────
+
+function initWeatherBar() {
+  const bar = document.querySelector('.weather-bar');
+  if (!bar) return;
+  const label = bar.querySelector('span');
+  if (label) label.textContent = 'Fetching weather…';
+  fetch('https://wttr.in/?format=j1')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      const cur  = data.current_condition[0];
+      const area = data.nearest_area[0];
+      const city = area.areaName[0].value;
+      const temp = cur.temp_C;
+      const desc = cur.weatherDesc[0].value;
+      bar.innerHTML =
+        `<span>&#127757; ${esc(city)} &nbsp;&middot;&nbsp; ${esc(temp)}&deg;C &nbsp;&middot;&nbsp; ${esc(desc)}</span>` +
+        `<span>Personalized by location &middot; Adobe Target</span>`;
+    })
+    .catch(function() {
+      if (label) label.textContent = 'Weather unavailable';
+    });
+}
 
 // ─── Article recommendations (Target Recs mbox + category fallback) ───────────
 
@@ -182,7 +207,6 @@ function renderRecsSection(section, articles, title) {
     <h2 class="section-title">${esc(title)}</h2>
     ${gridHtml(articles, Math.min(articles.length, 4))}`;
 }
-}
 
 function experienceBadgeHtml(experience) {
   if (experience === 'premium') {
@@ -259,6 +283,12 @@ function applyExperience(experience, topics) {
   _topics = topics || [];
 
   if (window.chronicleData) window.chronicleData.experience = experience;
+
+  const weatherBar = document.querySelector('.weather-bar');
+  if (weatherBar) {
+    weatherBar.style.display = experience === 'premium' ? '' : 'none';
+    if (experience === 'premium') initWeatherBar();
+  }
 
   renderHomepage();
 }
