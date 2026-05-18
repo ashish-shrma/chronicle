@@ -130,34 +130,14 @@ function initWeatherBar() {
     });
 }
 
-// ─── Article recommendations (Target Recs fills #related-zone via page load; fallback if not) ───
+// ─── Article recommendations ──────────────────────────────────────────────────
+// Target fills #related-zone directly via page load delivery response (Offers 225, 226).
+// No local rendering — keep the container, let Target own both the H2 and .recs-placeholder.
 
-function loadRecs(article) {
-  const section = document.querySelector('.target-zone[data-zone="related"]');
-  if (!section) return;
-
-  // Target Recs activity fills this section automatically via the page load delivery response.
-  // We only kick in if it hasn't replaced .recs-placeholder after 3 seconds.
-  setTimeout(function() {
-    if (section.querySelector('.recs-placeholder')) {
-      renderFallbackRecs(section, article);
-    }
-  }, 3000);
+function loadRecs(_article) {
+  // intentionally empty — Target activity manages this section
 }
 
-function renderFallbackRecs(section, article) {
-  var picks = _articles.filter(function(a) {
-    return a.id !== article.id && a.category === article.category;
-  }).slice(0, 4);
-  if (!picks.length) { section.style.display = 'none'; return; }
-  renderRecsSection(section, picks, 'More in ' + article.category);
-}
-
-function renderRecsSection(section, articles, title) {
-  section.innerHTML = `
-    <h2 class="section-title">${esc(title)}</h2>
-    ${gridHtml(articles, Math.min(articles.length, 4))}`;
-}
 
 function experienceBadgeHtml(experience) {
   if (experience === 'premium') {
