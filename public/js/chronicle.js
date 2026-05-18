@@ -96,7 +96,7 @@ function categorySectionHtml(cat, articles, cols) {
 
 function recsPlaceholderHtml(zone, title) {
   return `
-    <section class="section-wrap target-zone" data-zone="${esc(zone)}">
+    <section id="${esc(zone)}-zone" class="section-wrap target-zone" data-zone="${esc(zone)}">
       <h2 class="section-title">${esc(title)}</h2>
       <div class="recs-placeholder">Recommendations appear here once Adobe Target activity is live.</div>
     </section>`;
@@ -241,9 +241,8 @@ function homepageLayoutHtml(experience, topics) {
   const cols = isPremium ? 5 : 4;
   const hero = heroByTopics(isPremium ? topics : []);
 
-  const order = isPremium && topics.length
-    ? [...topics.filter(t => HOME_CATS.includes(t)), ...HOME_CATS.filter(t => !topics.includes(t))]
-    : HOME_CATS;
+  // Local topic-ordering removed — Target VEC custom code drives this via chronicle:sort
+  const order = HOME_CATS;
 
   const sections = order.map(slug => {
     const cat = _categories.find(c => c.slug === slug);
@@ -331,9 +330,6 @@ function renderArticle() {
         Read the full article on ${esc(article.source)} →
       </a>
       ${tags ? `<div class="article-tags">${tags}</div>` : ''}
-    </div>
-    <div style="margin-top:3rem">
-      ${recsPlaceholderHtml('related', 'Related articles')}
     </div>`;
 
   document.title = `${article.title} — Chronicle`;
