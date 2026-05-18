@@ -130,68 +130,19 @@ function initWeatherBar() {
     });
 }
 
-// ─── Article recommendations (Target Recs mbox + category fallback) ───────────
+// ─── Article recommendations (Target Recs fills #related-zone via page load; fallback if not) ───
 
 function loadRecs(article) {
   const section = document.querySelector('.target-zone[data-zone="related"]');
   if (!section) return;
 
-  const inner = section.querySelector('.recs-placeholder');
-  if (inner) inner.textContent = 'Loading recommendations…';
-
-  let done = false;
-
-  const fallbackTimer = setTimeout(function() {
-    if (!done) { done = true; renderFallbackRecs(section, article); }
-  }, 3000);
-
-  function tryGetOffers() {
-    if (!window.adobe || !window.adobe.target || !window.adobe.target.getOffers) return false;
-    window.adobe.target.getOffers({
-      request: {
-        execute: {
-          mboxes: [{ name: 'chronicle-recs', index: 0, parameters: {
-            'entity.id': article.id,
-            'entity.categoryId': article.category,
-            'entity.name': article.title
-          }}]
-        }
-      }
-    }).then(function(response) {
-      clearTimeout(fallbackTimer);
-      if (done) return;
-      done = true;
-      var mbox = response && response.execute && response.execute.mboxes && response.execute.mboxes[0];
-      var content = mbox && mbox.options && mbox.options[0] && mbox.options[0].content;
-      var ids = null;
-      if (typeof content === 'string') { try { ids = JSON.parse(content); } catch(e) {} }
-      else if (Array.isArray(content)) { ids = content; }
-
-      if (Array.isArray(ids) && ids.length) {
-        var recArticles = ids.map(function(item) {
-          var id = typeof item === 'string' ? item : (item && item.id);
-          return id ? _articles.find(function(a) { return a.id === id; }) : null;
-        }).filter(Boolean).slice(0, 4);
-        if (recArticles.length) {
-          renderRecsSection(section, recArticles, 'Recommended for you · Adobe Target');
-          return;
-        }
-      }
+  // Target Recs activity fills this section automatically via the page load delivery response.
+  // We only kick in if it hasn't replaced .recs-placeholder after 3 seconds.
+  setTimeout(function() {
+    if (section.querySelector('.recs-placeholder')) {
       renderFallbackRecs(section, article);
-    }).catch(function() {
-      clearTimeout(fallbackTimer);
-      if (!done) { done = true; renderFallbackRecs(section, article); }
-    });
-    return true;
-  }
-
-  if (!tryGetOffers()) {
-    var attempts = 0;
-    var poll = setInterval(function() {
-      if (++attempts > 25 || done) { clearInterval(poll); return; }
-      if (tryGetOffers()) clearInterval(poll);
-    }, 100);
-  }
+    }
+  }, 3000);
 }
 
 function renderFallbackRecs(section, article) {
