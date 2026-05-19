@@ -25,8 +25,8 @@
       }
       if (d.article && d.article.id) {
         p["entity.id"]         = d.article.id;
-        p["entity.categoryId"] = d.article.category || "";
-        p["entity.name"]       = d.article.title || "";
+        p["entity.categoryId"] = d.article.category || "business";
+        p["entity.name"]       = d.article.title || d.article.id;
         p["article.id"]        = d.article.id;
         if (d.article.category) p["article.category"] = d.article.category;
         if (d.article.source)   p["article.source"]   = d.article.source;
@@ -40,15 +40,48 @@
     };
   </script>
 
-  <!-- Extract article ID + restore metadata stored on card click so entity params are in the page load request -->
+  <!-- Restore article metadata for entity params in the page load request.
+       Priority: sessionStorage (card click) → localStorage lookup (populated by any prior homepage/category load). -->
   <script>
     (function() {
       var id = location.pathname.split('/').filter(Boolean).pop() || '';
       var meta = null;
-      try {
-        var raw = sessionStorage.getItem('chronicle.article-meta');
-        if (raw) { var m = JSON.parse(raw); if (m && m.id === id) meta = m; }
-      } catch(e) {}
+
+      // 1. Query param — present on every link the site generates (?cat=tech). Zero-lookup, works on cold start.
+      var catParam = new URLSearchParams(location.search).get('cat');
+      if (catParam) meta = { id: id, category: catParam, title: '', source: '' };
+
+      // 2. sessionStorage — populated by card click handler in the same tab session.
+      if (!meta) {
+        try {
+          var raw = sessionStorage.getItem('chronicle.article-meta');
+          if (raw) { var m = JSON.parse(raw); if (m && m.id === id) meta = m; }
+        } catch(e) {}
+      }
+
+      // 3. localStorage lookup — populated by any prior homepage or category page load.
+      if (!meta) {
+        try {
+          var lookup = JSON.parse(localStorage.getItem('chronicle.article-lookup') || 'null');
+          if (lookup && lookup[id]) {
+            var lm = lookup[id];
+            meta = { id: id, category: lm.category || '', title: lm.title || '', source: lm.source || '' };
+          }
+        } catch(e) {}
+      }
+
+      // Also merge richer metadata (title, source) from sessionStorage/lookup into a query-param-only meta.
+      if (meta && (!meta.title || !meta.source)) {
+        try {
+          var raw2 = sessionStorage.getItem('chronicle.article-meta');
+          if (raw2) { var m2 = JSON.parse(raw2); if (m2 && m2.id === id) { meta.title = m2.title || meta.title; meta.source = m2.source || meta.source; } }
+        } catch(e) {}
+        try {
+          var lk = JSON.parse(localStorage.getItem('chronicle.article-lookup') || 'null');
+          if (lk && lk[id]) { meta.title = meta.title || lk[id].title || ''; meta.source = meta.source || lk[id].source || ''; }
+        } catch(e) {}
+      }
+
       window.chronicleData.page    = { type: "article", category: meta ? meta.category : null, articleId: id };
       window.chronicleData.article = { id: id, title: meta ? meta.title : '', category: meta ? meta.category : '',
                                         source: meta ? meta.source : '', publishedAt: '', readTimeMinutes: 0, tags: [] };
@@ -125,7 +158,11 @@
     </div>
   </main>
 <section id="related-zone" class="section-wrap target-zone" data-zone="related">
-  <h2 class="section-title">Related articles</h2>
+  <h2 class="section-title">Related articles1</h2>
+  <div class="recs-placeholder"></div>
+</section>
+<section id="related-zone2" class="section-wrap target-zone" data-zone="related">
+  <h2 class="section-title">Related articles2</h2>
   <div class="recs-placeholder"></div>
 </section>
   <footer class="site-footer">
