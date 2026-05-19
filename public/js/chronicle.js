@@ -37,6 +37,16 @@ async function loadData() {
   _articles = a.articles || [];
   _categories = c.categories || [];
   _dataLoaded = true;
+
+  // Persist article metadata so article.html head script can populate entity params
+  // even when the user navigates directly to an article URL (no sessionStorage card-click entry).
+  try {
+    const lookup = {};
+    _articles.slice(0, 500).forEach(function(art) {
+      lookup[art.id] = { category: art.category, title: art.title, source: art.source };
+    });
+    localStorage.setItem('chronicle.article-lookup', JSON.stringify(lookup));
+  } catch(e) {}
 }
 
 function byCategory(slug) { return _articles.filter(a => a.category === slug); }
