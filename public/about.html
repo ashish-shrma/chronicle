@@ -18,7 +18,7 @@
     window.chronicleData = {};
     window.targetPageParams = function() {
       var d = window.chronicleData || {};
-      var p = { "at_property": "0ccfef00-23af-86f1-c6bc-2bfe34c1c712" };
+      var p = {};
       if (d.page) {
         p["page.type"] = d.page.type;
         if (d.page.category) p["page.category"] = d.page.category;
@@ -78,7 +78,7 @@
     });
   </script>
 
-  <script src="https://assets.adobedtm.com/6a203c8a0ff8/5671bcd53c9c/launch-88ba9665d70d-development.min.js" async></script>
+  <script src="https://assets.adobedtm.com/6a203c8a0ff8/ca9b95c299c0/launch-4940f9569370-development.min.js" async></script>
 
   <link rel="stylesheet" href="/css/styles.css">
 </head>
@@ -105,7 +105,7 @@
         <p>Articles are aggregated every six hours from BBC, TechCrunch, The Verge, and Hacker News.
            Full text links back to the original publisher — Chronicle does not claim ownership of any content.</p>
         <p>The Reader Picker (bottom-right) simulates an authenticated session by calling
-           <code>Visitor.setCustomerIDs</code> with a fake <code>crm_id</code>. This is a demo tool only.</p>
+           the Web SDK <code>sendEvent</code> command with a fake <code>CRM_ID</code> in the XDM identity map. This is a demo tool only.</p>
       </div>
     </div>
   </main>
