@@ -1,9 +1,12 @@
 // Chronicle — vanilla JS app
 // Reads from /data/articles.json and /data/categories.json
-// Target (Web SDK) VEC custom code dispatches 'chronicle:experience' to switch layout
+// Target VEC custom code dispatches 'chronicle:experience' to switch layout
 
+const ECID_ORG_ID = 'B504732B5D3B2A790A495ECF@AdobeOrg';
 const LS_KEY = 'chronicle.demo.reader';
-const SS_SYNCED = 'chronicle.ids.synced'; // sessionStorage flag: identity sent to Edge this session
+const SS_SYNCED = 'chronicle.ids.synced'; // sessionStorage flag: IDs confirmed in AMCV this session
+const AUTHENTICATED = 1;
+const LOGGED_OUT = 2;
 const HOME_CATS = ['tech', 'world', 'business', 'science'];
 
 const READERS = [
@@ -76,7 +79,7 @@ function cardHtml(article, size = 'md') {
     : '';
   return `
     <div class="card card-${esc(size)}" data-article-id="${esc(article.id)}">
-      <a href="/article/${esc(article.id)}?cat=${esc(article.category)}">
+      <a href="/article/${esc(article.id)}">
         ${img}
         <div class="card-source">${esc(article.source)} · ${esc(article.category)}</div>
         <div class="card-title">${esc(article.title)}</div>
@@ -347,40 +350,27 @@ function initReadFullTracking() {
 
 // ─── Reader Picker ────────────────────────────────────────────────────────────
 
-// Send the CRM_ID → ECID association to Edge as part of an interact event.
-// Returns the sendEvent promise so callers can wait before reloading.
-function sendIdentity(id, authenticatedState) {
-  if (typeof window.alloy !== 'function') return Promise.resolve();
-  const identityMap = id
-    ? { CRM_ID: [{ id, authenticatedState, primary: false }] }
-    : {};
+function setCustomerId(id, authState) {
+  if (!window.Visitor || !ECID_ORG_ID) return false;
   try {
-    return window.alloy('sendEvent', {
-      xdm: {
-        identityMap,
-        eventType: id ? 'identity.login' : 'identity.logout'
-      }
+    window.Visitor.getInstance(ECID_ORG_ID).setCustomerIDs({
+      crm_id: { id, authState }
     });
+    return true;
   } catch (e) {
-    console.warn('[reader-picker] alloy sendEvent failed', e);
-    return Promise.resolve();
+    console.warn('[reader-picker] setCustomerIDs failed', e);
+    return false;
   }
 }
 
-// The Web SDK stub (window.alloy) is defined by the Launch bundle, which loads
-// async. Poll until it appears before dispatching identity.
-function whenAlloyReady(id, authenticatedState, callback) {
+function whenVisitorReady(id, authState, callback) {
   let attempts = 0;
   let cancelled = false;
   let timer = null;
   function attempt() {
     if (cancelled) return;
-    if (typeof window.alloy === 'function') {
-      Promise.resolve(sendIdentity(id, authenticatedState)).then(function() {
-        if (!cancelled) callback();
-      }, function() {
-        if (!cancelled) callback();
-      });
+    if (setCustomerId(id, authState)) {
+      if (!cancelled) callback();
     } else if (attempts++ < 50) {
       timer = setTimeout(attempt, 100);
     }
@@ -389,14 +379,14 @@ function whenAlloyReady(id, authenticatedState, callback) {
   return function cancel() { cancelled = true; if (timer) clearTimeout(timer); };
 }
 
-// Wait until Web SDK resolves the ECID before reloading, so the next page's
-// page-load event fires with the identity cookie already in place and Edge
-// can associate its Target profile with the CRM_ID we just sent.
-function reloadWhenIdentityReady() {
-  if (typeof window.alloy !== 'function') { location.reload(); return; }
+// Wait for ECID to obtain its MID before reloading. ECID flushes any pending
+// setCustomerIDs writes to AMCV at the same moment it resolves the MID, so
+// the reloaded page's delivery request will carry customerIds.
+function reloadWhenAmcvReady() {
   try {
-    window.alloy('getIdentity').then(function() { location.reload(); },
-                                     function() { location.reload(); });
+    window.Visitor.getInstance(ECID_ORG_ID).getMarketingCloudVisitorID(function() {
+      location.reload();
+    }, true);
   } catch(e) {
     location.reload();
   }
@@ -410,14 +400,14 @@ function initReaderPicker() {
 
   if (savedId) {
     if (!sessionStorage.getItem(SS_SYNCED)) {
-      // First load this tab session with a saved reader. Fresh browser may not yet
-      // have an identity cookie. Send CRM_ID via Web SDK, then reload so the next
-      // page-load event fires with Edge already aware of the ECID ↔ CRM_ID mapping.
+      // First load this tab session with a saved reader. AMCV may not have the ID yet
+      // (e.g. fresh incognito tab). Set IDs then reload so the next page load request
+      // carries customerIds in the AMCV cookie before at.js fires.
       sessionStorage.setItem(SS_SYNCED, '1');
-      whenAlloyReady(savedId, 'authenticated', () => reloadWhenIdentityReady());
+      whenVisitorReady(savedId, AUTHENTICATED, () => reloadWhenAmcvReady());
     } else {
-      // Already reloaded once this session — Edge has the association; reinforce silently.
-      whenAlloyReady(savedId, 'authenticated', () => {});
+      // Already reloaded once this session — just reinforce the IDs (no reload)
+      whenVisitorReady(savedId, AUTHENTICATED, () => {});
     }
   }
 
@@ -454,7 +444,7 @@ function initReaderPicker() {
         localStorage.setItem(LS_KEY + '.topics', reader.topics);
         localStorage.setItem(LS_KEY + '.region', reader.region);
         sessionStorage.setItem(SS_SYNCED, '1');
-        whenAlloyReady(reader.id, 'authenticated', () => reloadWhenIdentityReady());
+        whenVisitorReady(reader.id, AUTHENTICATED, () => reloadWhenAmcvReady());
       });
     });
 
@@ -466,7 +456,7 @@ function initReaderPicker() {
         localStorage.removeItem(LS_KEY + '.topics');
         localStorage.removeItem(LS_KEY + '.region');
         sessionStorage.removeItem(SS_SYNCED);
-        whenAlloyReady('', 'loggedOut', () => reloadWhenIdentityReady());
+        whenVisitorReady('', LOGGED_OUT, () => reloadWhenAmcvReady());
       });
     }
   }
@@ -478,7 +468,7 @@ function initReaderPicker() {
 
 // Target's XT custom code dispatches this event. Since chronicle.js is a sync
 // script at the bottom of <body>, if the async Launch bundle loads from cache
-// before chronicle.js is fetched, Web SDK can deliver and dispatch this event
+// before chronicle.js is fetched, at.js can deliver and dispatch this event
 // before this listener exists. The inline capture script in <head> stores
 // window.chronicleData._offer for that case; we read it in init below.
 document.addEventListener('chronicle:experience', e => {
