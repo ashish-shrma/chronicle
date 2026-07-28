@@ -10,13 +10,13 @@
       "slug": "world",
       "name": "World",
       "description": "International news and politics.",
-      "articleCount": 419
+      "articleCount": 423
     },
     {
       "slug": "business",
       "name": "Business",
       "description": "Markets, companies, and the global economy.",
-      "articleCount": 86
+      "articleCount": 82
     },
     {
       "slug": "science",
